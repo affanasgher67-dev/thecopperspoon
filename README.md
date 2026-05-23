@@ -19,6 +19,36 @@ A conversational AI host for restaurants. Guests get a natural, friendly experie
 
 ---
 
+## Screenshots
+
+**Guest Experience**
+
+| Home | Menu | Chat Assistant |
+|---|---|---|
+| ![Home](screenshots/home.png) | ![Menu](screenshots/menu.png) | ![Assistant](screenshots/assistant.png) |
+
+| Reservations | Cart | Checkout |
+|---|---|---|
+| ![Reservations](screenshots/reservation.png) | ![Cart](screenshots/cart.png) | ![Checkout](screenshots/checkout.png) |
+
+**Staff Dashboard**
+
+| Orders Dashboard | Menu Management | Dashboard Stats |
+|---|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Menu Management](screenshots/menumanagement.png) | ![Dashboard 1](screenshots/dashboard1.png) |
+
+| Dashboard 2 | Dashboard 3 | Feedback |
+|---|---|---|
+| ![Dashboard 2](screenshots/dashboard2.png) | ![Dashboard 3](screenshots/dashboard3.png) | ![Feedback](screenshots/feedbsck.png) |
+
+**Theme Support**
+
+| Light Mode | Dark/Default |
+|---|---|
+| ![Light](screenshots/light.png) | ![About](screenshots/about.png) |
+
+---
+
 ## Tech stack
 
 - **Backend** — Flask (Python)
