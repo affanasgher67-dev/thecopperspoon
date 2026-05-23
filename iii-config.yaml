@@ -1,9 +1,0 @@
-modules:
-  - class: modules::shell::ExecModule
-    config:
-      watch:
-        - src/**/*.py
-        - data/**/*.json
-        - ./*.py
-      exec:
-        - python web.py
