@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-section">
+  <div class="admin-dashboard-container" data-admin-panel-portal
+    style="position: static; width: 100%; height: auto; min-height: 80vh; margin: 0 auto; border-radius: var(--r-md); box-shadow: var(--shadow-md);">
+    <!-- Header -->
+    <div class="admin-dashboard__header">
+      <h2 class="admin-header-title">Restaurant Control Center</h2>
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-primary btn-sm" data-admin-stats-refresh>Refresh All Data</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-tabs">
+      <button class="admin-tab-btn is-active" data-admin-tab="dashboard">Dashboard Overview</button>
+      <button class="admin-tab-btn" data-admin-tab="menu">Menu Management</button>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="admin-tab-content">
+      <!-- Page 1: Unified Dashboard -->
+      <div class="admin-tab-pane is-active" data-admin-pane="dashboard">
+        <!-- Quota Warning -->
+        <div data-admin-quota-warning style="display:none; background:rgba(204,142,92,0.1); color:var(--accent-copper); padding:12px 20px; border-radius:var(--r-md); border:1px solid var(--border-subtle); margin-bottom:20px; font-size:0.9rem; font-weight:500; text-align:center; backdrop-filter:blur(10px);">
+          ⚠️ Data from cache - Firestore quota limit reached. New updates may be delayed.
+        </div>
+
+        <!-- Dashboard Sub-Navigation -->
+        <div class="admin-sub-nav">
+          <button class="admin-sub-tab-btn is-active" data-dashboard-tab="overview">Overview</button>
+          <button class="admin-sub-tab-btn" data-dashboard-tab="orders">Orders</button>
+          <button class="admin-sub-tab-btn" data-dashboard-tab="reservations">Reservations</button>
+          <button class="admin-sub-tab-btn" data-dashboard-tab="feedback">Feedback</button>
+        </div>
+
+        <!-- Dashboard Sub-Content -->
+        <div class="dashboard-sub-content">
+          <!-- Overview Sub-Pane -->
+          <div class="dashboard-sub-pane is-active" data-dashboard-pane="overview">
+            <!-- 1. High Level Stats -->
+            <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+              <div class="stat-card">
+                <span class="stat-card__label">Total Revenue</span>
+                <span class="stat-card__value" data-stat-revenue>$ 0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">Total Orders</span>
+                <span class="stat-card__value" data-stat-orders>0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">Active Tables</span>
+                <span class="stat-card__value" data-stat-reservations>0</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__label">Avg Satisfaction</span>
+                <span class="stat-card__value" data-stat-satisfaction>94%</span>
+              </div>
+            </div>
+
+            <!-- 2. Analytics Charts -->
+            <div class="charts-grid" style="grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+              <div class="mc-panel">
+                <h4 class="mc-panel-title">Revenue Performance</h4>
+                <div class="chart-container" style="height: 200px;"><canvas id="revenueChart"></canvas></div>
+              </div>
+              <div class="mc-panel">
+                <h4 class="mc-panel-title">Operations Balance</h4>
+                <div class="chart-container" style="height: 200px;"><canvas id="opsChart"></canvas></div>
+              </div>
+            </div>
+
+            <div class="mc-panel" style="margin-bottom: 30px;">
+              <h4 class="mc-panel-title">Popular Items</h4>
+              <div style="height:200px;"><canvas id="itemsChart"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Orders Sub-Pane -->
+          <div class="dashboard-sub-pane" data-dashboard-pane="orders">
+            <div class="mc-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <h4 class="mc-panel-title">Order Queue <span>(Live)</span></h4>
+                <span class="mc-badge" style="background:var(--accent-copper); color:white; font-size:0.7rem;">Action Required</span>
+              </div>
+              <div style="overflow-x: auto;">
+                <table class="mc-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Guest</th>
+                      <th>Type</th>
+                      <th>Total</th>
+                      <th style="text-align:right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody data-admin-orders-body>
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reservations Sub-Pane -->
+          <div class="dashboard-sub-pane" data-dashboard-pane="reservations">
+            <div class="mc-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <h4 class="mc-panel-title">Reservations <span>(Live)</span></h4>
+                <span class="mc-badge" style="background:rgba(58,180,122,0.2); color:#3ab47a; font-size:0.7rem;">Booking Log</span>
+              </div>
+              <div style="overflow-x: auto;">
+                <table class="mc-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Guest</th>
+                      <th>Date & Time</th>
+                      <th>Party</th>
+                      <th>Notes</th>
+                      <th style="text-align:right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody data-admin-res-body>
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feedback Sub-Pane -->
+          <div class="dashboard-sub-pane" data-dashboard-pane="feedback">
+            <div class="mc-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <h4 class="mc-panel-title">Guest Feedback <span>(Live)</span></h4>
+                <span class="mc-badge" style="background:rgba(0,0,0,0.1); color:var(--text-secondary); font-size:0.7rem;">Recent Reviews</span>
+              </div>
+              <div style="overflow-x: auto;">
+                <table class="mc-table">
+                  <thead>
+                    <tr>
+                      <th>Guest Name</th>
+                      <th>Rating</th>
+                      <th>Comment</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody data-admin-reviews-body>
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page 2: Menu Management -->
+      <div class="admin-tab-pane" data-admin-pane="menu">
+        <!-- Add New Item Panel -->
+        <div class="mc-panel" style="margin-bottom: 30px;">
+          <h4 class="mc-panel-title">Add New Menu Item</h4>
+          <form class="form-grid" data-admin-add-item-form style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;" enctype="multipart/form-data">
+            <label class="form-label">
+              Item Name *
+              <input class="form-input" name="item_name" type="text" placeholder="e.g. Grilled Ribeye" required />
+            </label>
+            <label class="form-label">
+              Section *
+              <select class="form-input" name="section" required>
+                <option value="Starters &amp; Shared">Starters &amp; Shared</option>
+                <option value="Artisanal Mains">Artisanal Mains</option>
+                <option value="Indulgent Desserts">Indulgent Desserts</option>
+                <option value="Artisanal Beverages">Artisanal Beverages</option>
+              </select>
+            </label>
+            <label class="form-label">
+              Price ($) *
+              <input class="form-input" name="price" type="number" step="0.01" min="0" placeholder="29.50" required />
+            </label>
+            <label class="form-label">
+              Tags (comma-separated)
+              <input class="form-input" name="tags" type="text" placeholder="e.g. signature, gluten-free" />
+            </label>
+            <label class="form-label" style="grid-column: 1 / -1;">
+              Short Description *
+              <input class="form-input" name="description" type="text" placeholder="A brief one-liner for the menu card" required />
+            </label>
+            <label class="form-label" style="grid-column: 1 / -1;">
+              Detailed Description
+              <textarea class="form-input" name="detailed_description" rows="2" placeholder="A richer description for the item detail view"></textarea>
+            </label>
+            <label class="form-label" style="grid-column: 1 / -1;">
+              Dish Image (PNG / JPG)
+              <input class="form-input" name="image" type="file" accept="image/png, image/jpeg, image/webp" style="padding: 10px;" />
+              <span style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; display:block;">Upload a photo of the dish. Recommended: square, at least 600×600px.</span
+            </label>
+            <div style="grid-column: 1 / -1; display:flex; gap:12px; align-items:center;">
+              <button class="btn btn-primary btn-sm" type="submit">Add to Menu</button>
+              <span class="status-card" data-add-item-status style="display:none; padding:8px 16px; font-size:0.85rem;"></span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Existing Inventory Table -->
+        <div class="mc-panel">
+          <h4 class="mc-panel-title">Restaurant Inventory <span>(Live Stock Sync)</span></h4>
+          <table class="mc-table">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Price</th>
+                <th>Tags</th>
+                <th style="text-align:right">Stock Action</th>
+              </tr>
+            </thead>
+            <tbody data-admin-menu-body>
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

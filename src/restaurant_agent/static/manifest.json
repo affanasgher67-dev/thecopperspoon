@@ -1,0 +1,19 @@
+{
+  "name": "The Copper Spoon - Restaurant Agent",
+  "short_name": "Copper Spoon",
+  "description": "A warm restaurant AI assistant with live menu, reservations, and ordering.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0d0b",
+  "theme_color": "#c45d3a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle"]
+}

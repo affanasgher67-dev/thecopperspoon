@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Our Story | {{ profile.name }}{% endblock %}
+
+{% block content %}
+<style>
+  .about-hero-title {
+    font-family: 'Playfair Display', serif; 
+    font-size: 4.5rem; 
+    margin-top: 10px; 
+    color: #fff;
+  }
+  .about-card {
+    padding: 60px; 
+    border: 1px solid var(--border);
+  }
+  .about-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 60px; 
+    align-items: center;
+  }
+  .about-cta-title {
+    font-family: 'Playfair Display', serif; 
+    font-size: 2.8rem; 
+    margin-bottom: 32px; 
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    -webkit-text-fill-color: transparent;
+  }
+  
+  @media (max-width: 768px) {
+    .about-hero-title {
+      font-size: 3rem;
+    }
+    .about-card {
+      padding: 30px 20px;
+    }
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+    .about-cta-title {
+      font-size: 2rem;
+    }
+    .est-badge {
+      width: 80px !important;
+      height: 80px !important;
+      font-size: 0.8rem !important;
+      bottom: -10px !important;
+      right: -10px !important;
+    }
+  }
+</style>
+
+<section class="page-section" style="padding: 0;">
+  <!-- Hero / Intro -->
+  <div style="position: relative; height: 60vh; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+    <div style="position: absolute; top:0; left:0; width:100%; height:100%; z-index: 1;">
+      <img src="{{ url_for('static', filename='hero.png') }}" alt="" style="width:100%; height:100%; object-fit: cover; opacity: 0.4;">
+      <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, transparent, var(--bg-secondary));"></div>
+    </div>
+    
+    <div style="position: relative; z-index: 2; text-align: center; max-width: 800px; padding: 0 20px;">
+      <p class="eyebrow" style="color: var(--accent); letter-spacing: 0.3em;">CRAFTING MOMENTS</p>
+      <h1 class="about-hero-title">Our Story</h1>
+    </div>
+  </div>
+
+  <div style="max-width: 1000px; margin: -100px auto 100px; padding: 0 20px; position: relative; z-index: 10;">
+    <div class="glass-card about-card">
+      <div class="about-grid">
+        <div>
+          <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 24px;">Born from a love of the copper kettle.</h2>
+          <p style="color: var(--text-secondary); font-size: 1.15rem; line-height: 1.8; margin-bottom: 20px;">
+            At {{ profile.name }}, we believe that the best meals aren't just eaten—they're experienced. Our name reflects our commitment to the traditional craft of slow-cooking, inspired by the warmth and radiance of copper servingware.
+          </p>
+          <p style="color: var(--text-secondary); font-size: 1.15rem; line-height: 1.8;">
+            From our locally sourced house-made pasta to our grilled specials, every dish is a tribute to {{ profile.cuisine }}. We've created a space that is {{ profile.vibe }}, where every guest is treated like a member of our local neighborhood family.
+          </p>
+        </div>
+        <div style="position: relative;">
+          <img src="{{ url_for('static', filename='signature.png') }}" alt="Signature Dish" style="width: 100%; border-radius: var(--r-lg); box-shadow: var(--shadow-lg);">
+          <div class="est-badge" style="position: absolute; bottom: -20px; right: -20px; width: 100px; height: 100px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; color: #fff; transform: rotate(-15deg); border: 4px solid var(--bg-secondary);">
+            Est. 2024
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 80px; padding-top: 60px; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; text-align: center;">
+        <div>
+          <h4 style="color: var(--accent); margin-bottom: 8px;">The Vision</h4>
+          <p style="font-size: 0.95rem; color: var(--text-tertiary);">Honoring time-tested techniques with a modern flair.</p>
+        </div>
+        <div>
+          <h4 style="color: var(--accent); margin-bottom: 8px;">The Ingredients</h4>
+          <p style="font-size: 0.95rem; color: var(--text-tertiary);">Only the finest seasonal produce from local partners.</p>
+        </div>
+        <div>
+          <h4 style="color: var(--accent); margin-bottom: 8px;">The Community</h4>
+          <p style="font-size: 0.95rem; color: var(--text-tertiary);">A sanctuary for those who appreciate the art of dining.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call to Action -->
+  <div style="max-width: 800px; margin: 0 auto 100px; padding: 0 20px;">
+    <div class="glass-card about-card" style="text-align: center;">
+      <h3 class="about-cta-title">Ready to experience it yourself?</h3>
+      <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <a href="/reservations" class="btn btn-primary" style="padding: 14px 40px; border-radius: var(--r-md);">Book a Table</a>
+        <a href="/menu" class="btn btn-ghost" style="padding: 14px 40px; border-radius: var(--r-md);">Explore Menu</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

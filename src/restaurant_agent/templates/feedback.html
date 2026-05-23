@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Guest Feedback | {{ profile.name }}{% endblock %}
+
+{% block content %}
+<section class="page-section" style="padding-top: 40px;">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+    <div style="text-align: center; margin-bottom: 60px;">
+      <p class="eyebrow" style="color: var(--accent);">GUEST EXPERIENCES</p>
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 3.5rem; margin-top: 10px;">Your voice matters.</h1>
+      <p style="color: var(--text-secondary); max-width: 600px; margin: 20px auto; font-size: 1.1rem; line-height: 1.6;">
+        Help us perfect our craft. Whether it was a memorable evening or something we can improve, we'd love to hear from you.
+      </p>
+    </div>
+
+    <div class="feedback-layout">
+      <!-- Submit Feedback -->
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Reflections</p>
+            <h2>Leave a review</h2>
+          </div>
+        </div>
+
+        <form class="form-grid" data-feedback-form>
+          <label class="form-label">
+            Your name
+            <input class="form-input" name="guest_name" type="text" placeholder="Jordan Lee" required />
+          </label>
+
+          <div>
+            <label class="form-label" style="margin-bottom:8px">Rating</label>
+            <div class="star-input" role="group" aria-label="Star rating">
+              <button type="button" data-star="1" aria-label="1 star">☆</button>
+              <button type="button" data-star="2" aria-label="2 stars">☆</button>
+              <button type="button" data-star="3" aria-label="3 stars">☆</button>
+              <button type="button" data-star="4" aria-label="4 stars">☆</button>
+              <button type="button" data-star="5" aria-label="5 stars">☆</button>
+            </div>
+          </div>
+
+          <label class="form-label">
+            Your experience
+            <textarea
+              class="form-input"
+              name="comment"
+              rows="6"
+              placeholder="Tell us about your visit..."
+              required
+            ></textarea>
+          </label>
+
+          <button class="btn btn-primary" type="submit">Submit review</button>
+        </form>
+
+        <div class="status-card" data-feedback-status style="margin-top:16px">
+          Your feedback helps us improve every day.
+        </div>
+      </div>
+
+      <!-- Recent Reviews -->
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Community</p>
+            <h2>What people say</h2>
+          </div>
+        </div>
+
+        <div class="feedback-stats" data-feedback-stats>
+          <div class="stat-card">
+            <div class="stat-card__value">—</div>
+            <div class="stat-card__label">Avg Rating</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__value">0</div>
+            <div class="stat-card__label">Reviews</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__value">—</div>
+            <div class="stat-card__label">Stars</div>
+          </div>
+        </div>
+
+        <div class="review-list" data-feedback-reviews>
+          <div class="order-empty">
+            <div class="order-empty__icon">💬</div>
+            <p>No reviews yet. Be the first!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

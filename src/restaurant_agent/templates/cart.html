@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-section" style="padding-top: 40px;">
+  <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
+    
+    <div style="text-align: center; margin-bottom: 50px;">
+      <p class="eyebrow" style="color: var(--accent);">YOUR SELECTION</p>
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 3.2rem; margin-top: 10px;">Review your order</h1>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; align-items: start;">
+      
+      <!-- Receipt Section -->
+      <div class="panel" style="padding: 0; overflow: hidden; border: 1px solid var(--border);">
+        <div style="padding: 24px; background: var(--surface-hover); border-bottom: 1px dashed var(--border-strong);">
+          <h3 style="font-family: 'Playfair Display', serif; margin: 0;">Order Summary</h3>
+        </div>
+        
+        <div style="padding: 24px;">
+          <div class="order-items-list" data-order-items>
+            <div class="order-empty">
+              <div class="order-empty__icon">🛒</div>
+              <p>Your cart is empty.</p>
+              <a href="/menu" class="btn btn-ghost btn-sm" style="margin-top: 12px;">Back to Menu</a>
+            </div>
+          </div>
+          
+          <div class="order-summary-card" data-order-total></div>
+        </div>
+      </div>
+    
+      <!-- Checkout Form -->
+      <div class="panel" style="padding: 32px;">
+        <div class="panel-heading" style="margin-bottom: 30px;">
+          <div>
+            <p class="panel-kicker">Delivery Details</p>
+            <h2>Complete your order</h2>
+          </div>
+        </div>
+
+        <form class="form-grid" data-order-form>
+          <label class="form-label">
+            Full name
+            <input class="form-input" name="order_guest_name" type="text" placeholder="Jordan Lee" required />
+          </label>
+
+          <div class="field-row">
+            <label class="form-label">
+              Phone
+              <input class="form-input" name="order_phone" type="tel" placeholder="+92 300 1234567" required />
+            </label>
+            <label class="form-label">
+              Order type
+              <select class="form-input" name="order_type">
+                <option value="takeout">Takeout</option>
+                <option value="dine-in">Dine-in</option>
+                <option value="delivery">Delivery</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="form-label">
+            Email address
+            <input class="form-input" name="email" type="email" placeholder="jordan@example.com" required />
+          </label>
+
+          <label class="form-label">
+            Special instructions
+            <textarea class="form-input" name="order_notes" rows="3" placeholder="Dietary notes, etc."></textarea>
+          </label>
+
+          <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 10px;">Place order</button>
+        </form>
+
+        <div class="status-card" data-order-status style="margin-top:20px">
+          Estimated preparation time: 15-25 minutes.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tracking Section -->
+    <div class="panel" style="max-width: 600px; margin: 60px auto 0; text-align: center;">
+      <div class="panel-heading" style="justify-content: center;">
+        <div style="text-align: center;">
+          <p class="panel-kicker">Already ordered?</p>
+          <h2>Track your status</h2>
+        </div>
+      </div>
+      <div class="order-lookup" style="margin: 20px 0;">
+        <input class="form-input" id="order-lookup-input" type="text" placeholder="Order ID (e.g. A1B2)" autocomplete="off" />
+        <button class="btn btn-primary" type="button" data-order-lookup>Track</button>
+      </div>
+      <div data-order-result></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

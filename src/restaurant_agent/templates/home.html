@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="hero">
+  <div class="hero-visual">
+    <img src="{{ url_for('static', filename='hero.png') }}" alt="" class="hero-bg hero-bg--dark">
+    <img src="{{ url_for('static', filename='hero_light.png') }}" alt="" class="hero-bg hero-bg--light">
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="glass-card hero-main">
+    <p class="eyebrow">Restaurant AI assistant</p>
+    <h1>{{ profile.name }}</h1>
+    <p class="hero-lede">
+      Experience the future of dining. Consult our AI for curated recommendations,
+      seamlessly book your table, or explore our handcrafted menu in a single, elegant interface.
+    </p>
+    <div class="hero-badges">
+      <span class="badge">🕐 {{ profile.hours }}</span>
+      <span class="badge">🍽️ {{ profile.cuisine }}</span>
+      <span class="badge">✨ {{ profile.vibe }}</span>
+    </div>
+  </div>
+  <aside class="glass-card hero-aside">
+    <p class="card-label">Tonight's Highlight</p>
+    <div class="signature-visual">
+       <img src="{{ url_for('static', filename='signature.png') }}" alt="Signature Dish Dark" class="signature-img signature-img--dark">
+       <img src="{{ url_for('static', filename='signature_light.png') }}" alt="Signature Dish Light" class="signature-img signature-img--light">
+    </div>
+    <h2>Warm, direct, and helpful</h2>
+    <p>
+      Ask about the menu, tell the assistant what you're craving, or
+      submit a reservation right on the page.
+    </p>
+    <dl class="fact-list">
+      <div>
+        <dt>Phone</dt>
+        <dd>{{ profile.phone }}</dd>
+      </div>
+      <div>
+        <dt>Reservations</dt>
+        <dd>{{ profile.reservation_note }}</dd>
+      </div>
+    </dl>
+  </aside>
+</header>
+
+<!-- Events Section -->
+<section id="events" class="page-section" style="padding: 80px 20px; background: var(--bg-tertiary);">
+  <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+    <p class="eyebrow" style="color: var(--accent);">GATHERINGS</p>
+    <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 24px;">Upcoming Events</h2>
+    <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 40px; max-width: 600px; margin-inline: auto;">
+      The Copper Spoon isn't just about dining; it's about community. Join us for our curated evenings, from intimate wine tastings to exclusive seasonal menu previews.
+    </p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; text-align:left;">
+      <div class="glass-card" style="padding: 24px; border: 1px solid var(--border);">
+        <h3 style="margin-bottom:8px; font-family: 'Playfair Display', serif;">Sommelier Saturdays</h3>
+        <p style="color:var(--text-tertiary); font-size:0.95rem; line-height: 1.5;">
+          Guided tours through our vintage cellars. Taste distinct pairings perfectly matched by our executive chef.
+        </p>
+      </div>
+      <div class="glass-card" style="padding: 24px; border: 1px solid var(--border);">
+        <h3 style="margin-bottom:8px; font-family: 'Playfair Display', serif;">Test Kitchen Previews</h3>
+        <p style="color:var(--text-tertiary); font-size:0.95rem; line-height: 1.5;">
+          Experience our culinary experiments before they hit the seasonal menu. Limited availability every first Tuesday.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Private Dining Section -->
+<section id="private-dining" class="page-section" style="padding: 80px 20px;">
+  <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center;">
+    <div>
+      <p class="eyebrow" style="color: var(--accent);">EXCLUSIVE SPACES</p>
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 20px;">Private Dining</h2>
+      <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;">
+        For those truly special moments, reserve our private dining suite. Featuring an exclusive bespoke menu, ambient copper lighting, and a dedicated service steward ensuring your evening is flawless.
+      </p>
+      <a href="/reservations" class="btn btn-primary">Inquire About Booking</a>
+    </div>
+    <div class="glass-card" style="padding:10px;">
+      <img src="{{ url_for('static', filename='signature.png') }}" class="signature-img signature-img--dark" style="border-radius:var(--r-md); width:100%; aspect-ratio: 4/3; object-fit: cover;">
+      <img src="{{ url_for('static', filename='signature_light.png') }}" class="signature-img signature-img--light" style="border-radius:var(--r-md); width:100%; aspect-ratio: 4/3; object-fit: cover;">
+    </div>
+  </div>
+</section>
+
+<!-- Wholesale Section -->
+<section id="wholesale" class="page-section" style="padding: 80px 20px; text-align: center; background: var(--bg-secondary);">
+  <div style="max-width: 700px; margin: 0 auto;">
+    <p class="eyebrow" style="color: var(--accent);">PARTNERSHIPS</p>
+    <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 20px;">Wholesale & B2B</h2>
+    <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.7; margin-bottom: 30px;">
+      Our artisanal sauces, house-cured ingredients, and custom copper servingware are available for wholesale purchase. Partner with The Copper Spoon to elevate your business's culinary offerings.
+    </p>
+    <form style="display:flex; gap:12px; max-width: 400px; margin: 0 auto;">
+      <input type="email" placeholder="Enter business email" class="form-input" required>
+      <button type="submit" class="btn btn-ghost">Get Brochure</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

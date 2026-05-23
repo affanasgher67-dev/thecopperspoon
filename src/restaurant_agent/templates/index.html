@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ profile.name }} | Restaurant Agent</title>
+    <meta name="description" content="A warm restaurant AI assistant with live menu, reservations, ordering, and feedback. Powered by {{ profile.name }}." />
+    <meta name="theme-color" content="#c45d3a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="{{ url_for('static', filename='icon-512.png') }}" type="image/png" />
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-512.png') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+
+      <!-- ── PWA Install Banner ─────────────────────────── -->
+      <div class="install-banner" data-install-banner>
+        <div class="install-banner__text">
+          <strong>Install {{ profile.name }}</strong> for a native app experience with offline support.
+        </div>
+        <button class="btn btn-primary btn-sm" data-install-app>Install</button>
+        <button class="install-banner__dismiss" data-install-dismiss aria-label="Dismiss">×</button>
+      </div>
+
+      <!-- ── Top Navigation ─────────────────────────────── -->
+      <nav class="top-nav" aria-label="Main navigation">
+        <a class="top-nav__brand" href="/">
+          <img class="top-nav__brand-icon" src="{{ url_for('static', filename='icon-512.png') }}" alt="" />
+          {{ profile.name }}
+        </a>
+        
+        <ul class="top-nav__links">
+          <li><a href="#">Home</a></li>
+          <li class="nav-dropdown">
+            <a href="#menu-section">Menu</a>
+            <ul class="nav-dropdown-content">
+              {% for section in menu.sections %}
+                <li><a href="#menu-category-{{ loop.index }}">{{ section.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="#reserve-section">Reservations</a></li>
+          <li><a href="#" data-cart-toggle>Your Cart</a></li>
+          <li><a href="#" data-open-dashboard style="display:none;">Dashboard</a></li>
+        </ul>
+
+        <div class="top-nav__controls">
+          <button class="btn btn-ghost btn-sm" data-admin-logout style="display:none">Sign out</button>
+          <button class="icon-btn cart-nav-btn" data-cart-toggle aria-label="Open cart" title="Your order">
+            🛒
+            <span class="cart-badge" data-cart-badge style="display:none">0</span>
+          </button>
+          <button class="icon-btn" data-theme-toggle aria-label="Toggle dark mode" title="Toggle theme">🌙</button>
+          <button class="icon-btn" data-admin-toggle aria-label="Admin login" title="Admin login">🔑</button>
+        </div>
+      </nav>
+
+      <!-- ── Hero ───────────────────────────────────────── -->
+      <header class="hero">
+        <div class="hero-visual">
+          <img src="{{ url_for('static', filename='hero.png') }}" alt="" class="hero-bg hero-bg--dark">
+          <img src="{{ url_for('static', filename='hero_light.png') }}" alt="" class="hero-bg hero-bg--light">
+          <div class="hero-overlay"></div>
+        </div>
+        <div class="glass-card hero-main">
+          <p class="eyebrow">Restaurant AI assistant</p>
+          <h1>{{ profile.name }}</h1>
+          <p class="hero-lede">
+            Experience the future of dining. Consult our AI for curated recommendations,
+            seamlessly book your table, or explore our handcrafted menu in a single, elegant interface.
+          </p>
+          <div class="hero-badges">
+            <span class="badge">🕐 {{ profile.hours }}</span>
+            <span class="badge">🍽️ {{ profile.cuisine }}</span>
+            <span class="badge">✨ {{ profile.vibe }}</span>
+          </div>
+        </div>
+        <aside class="glass-card hero-aside">
+          <p class="card-label">Tonight's Highlight</p>
+          <div class="signature-visual">
+             <img src="{{ url_for('static', filename='signature.png') }}" alt="Signature Dish Dark" class="signature-img signature-img--dark">
+             <img src="{{ url_for('static', filename='signature_light.png') }}" alt="Signature Dish Light" class="signature-img signature-img--light">
+          </div>
+          <h2>Warm, direct, and helpful</h2>
+          <p>
+            Ask about the menu, tell the assistant what you're craving, or
+            submit a reservation right on the page.
+          </p>
+          <dl class="fact-list">
+            <div>
+              <dt>Phone</dt>
+              <dd>{{ profile.phone }}</dd>
+            </div>
+            <div>
+              <dt>Reservations</dt>
+              <dd>{{ profile.reservation_note }}</dd>
+            </div>
+          </dl>
+        </aside>
+      </header>
+
+      <!-- ══════════════════════════════════════════════════
+           SECTION: Menu (always visible on page load)
+           ══════════════════════════════════════════════════ -->
+      <section class="page-section" id="menu-section">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Live menu</p>
+              <h2>Browse &amp; search the menu</h2>
+            </div>
+            <button class="btn btn-ghost btn-sm" type="button" data-refresh-menu>Refresh</button>
+          </div>
+
+          <div class="menu-search-bar">
+            <input id="menu-search" type="text" placeholder="Search dishes, ingredients, or dietary tags..." autocomplete="off" />
+            <button class="btn btn-ghost btn-sm" type="button" data-clear-search>Clear</button>
+          </div>
+
+          <div class="menu-tags" aria-label="Filter by tag">
+            <button class="tag-filter" data-tag-filter="vegetarian" type="button">🥬 Vegetarian</button>
+            <button class="tag-filter" data-tag-filter="gluten-free" type="button">🌾 Gluten-free</button>
+            <button class="tag-filter" data-tag-filter="house favorite" type="button">⭐ House favorites</button>
+            <button class="tag-filter" data-tag-filter="chef special" type="button">👨‍🍳 Chef special</button>
+            <button class="tag-filter" data-tag-filter="shareable" type="button">🤝 Shareable</button>
+          </div>
+
+          <div class="menu-grid" data-menu-grid>
+            {% for section in menu.sections %}
+              <article class="menu-section" id="menu-category-{{ loop.index }}">
+                <div class="menu-section__header">
+                  <h3>{{ section.name }}</h3>
+                  <span>{{ section.items|length }} items</span>
+                </div>
+                <ul class="menu-list">
+                  {% for item in section.items %}
+                    <li class="menu-item{% if item.highlight %} is-highlight{% endif %}">
+                      {% if item.image_url %}
+                        <div class="menu-item__image-wrap">
+                          <img src="{{ item.image_url }}" alt="{{ item.name }}" class="menu-item__img" loading="lazy">
+                        </div>
+                      {% endif %}
+                      <div class="menu-item__content">
+                        <div class="menu-item__top">
+                          <strong>{{ item.name }}</strong>
+                          <span>{{ item.price_display(menu.currency) }}</span>
+                        </div>
+                        <p>{{ item.description }}</p>
+                        {% if item.out_of_stock %}
+                          <div class="tag-row"><span style="background:var(--error);color:white">Out of Stock</span></div>
+                        {% endif %}
+                        {% if item.tags and not item.out_of_stock %}
+                          <div class="tag-row">
+                            {% for tag in item.tags %}
+                              <span>{{ tag }}</span>
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                        <div class="menu-item__bottom-actions">
+                          {% if not is_admin %}
+                          <button class="menu-item__order-btn" type="button" 
+                            data-add-to-order='{"name": "{{ item.name }}", "price": {{ item.price }}}'
+                            {% if item.out_of_stock %}disabled style="opacity:0.4;cursor:not-allowed;"{% endif %}
+                          >
+                            {% if item.out_of_stock %}Sold Out{% else %}+ Add{% endif %}
+                          </button>
+                          {% endif %}
+                          <button class="btn btn-ghost btn-sm" type="button" data-toggle-details>Details</button>
+                        </div>
+                        <div class="menu-item__expand-hint" data-expand-menu-item>+ View details</div>
+                        <div class="menu-item__details">
+                          <p>{{ item.detailed_description }}</p>
+                        </div>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════
+           SECTION: Reservations (scroll down to see)
+           ══════════════════════════════════════════════════ -->
+      <section class="page-section" id="reserve-section">
+        <div class="reservation-layout">
+
+          <!-- Booking Form -->
+          <div class="panel" data-public-panel>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Reservations</p>
+                <h2>Book in one pass</h2>
+              </div>
+              <span class="panel-tag is-soft">Local save</span>
+            </div>
+
+            <form class="form-grid" data-reservation-form>
+              <div class="field-row">
+                <label class="form-label">
+                  Name
+                  <input class="form-input" name="guest_name" type="text" placeholder="Jordan Lee" required />
+                </label>
+                <label class="form-label">
+                  Phone
+                  <input class="form-input" name="phone" type="tel" placeholder="+92 300 1234567" pattern="[+]?[0-9\s\-()]{9,20}" title="Please enter a valid phone number (at least 9 digits)" required />
+                </label>
+                <label class="form-label">
+                  Email
+                  <input class="form-input" name="email" type="email" placeholder="guest@example.com" required />
+                </label>
+              </div>
+              <div class="field-row">
+                <label class="form-label">
+                  Date
+                  <input class="form-input" name="reservation_date" type="date" required data-avail-date />
+                </label>
+                <label class="form-label">
+                  Time
+                  <input class="form-input" name="reservation_time" type="time" required data-avail-time />
+                </label>
+              </div>
+
+              <!-- Live availability indicator -->
+              <div class="availability-bar" data-availability-bar style="display:none">
+                <div class="availability-bar__header">
+                  <span class="availability-bar__label">Slot availability</span>
+                  <span class="availability-bar__seats" data-avail-text></span>
+                </div>
+                <div class="availability-bar__track">
+                  <div class="availability-bar__fill" data-avail-fill></div>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <label class="form-label">
+                  Party size
+                  <input class="form-input" name="party_size" type="number" min="1" max="12" value="2" required />
+                </label>
+                <label class="form-label">
+                  &nbsp;
+                  <span style="font-size:0.82rem;color:var(--text-tertiary);padding:12px 0">Max 12 guests for online booking</span>
+                </label>
+              </div>
+              <label class="form-label">
+                Notes
+                <textarea
+                  class="form-input"
+                  name="notes"
+                  rows="3"
+                  placeholder="Window seat if possible, anniversary celebration, etc."
+                ></textarea>
+              </label>
+              <button class="btn btn-primary" type="submit">Reserve now</button>
+            </form>
+
+            <div class="status-card" data-reservation-status style="margin-top:16px">
+              Reservations are confirmed after validation and stored locally.
+            </div>
+          </div>
+
+          <!-- Lookup & Cancel -->
+          <div class="panel" data-public-panel>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Manage</p>
+                <h2>Lookup &amp; cancel</h2>
+              </div>
+            </div>
+
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">
+              Enter your confirmation code to view details or cancel your reservation.
+            </p>
+
+            <div class="order-lookup">
+              <input class="form-input" id="reservation-lookup-input" type="text" placeholder="e.g. A1B2C3D4" autocomplete="off" />
+              <button class="btn btn-ghost btn-sm" type="button" data-reservation-lookup>Look up</button>
+            </div>
+
+            <div data-reservation-result style="margin-top:16px"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════
+           SECTION: Feedback (scroll down to see)
+           ══════════════════════════════════════════════════ -->
+      <section class="page-section" id="feedback-section">
+        <div class="feedback-layout">
+
+          <!-- Submit Feedback -->
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Your voice matters</p>
+                <h2>Leave a review</h2>
+              </div>
+            </div>
+
+            <form class="form-grid" data-feedback-form>
+              <label class="form-label">
+                Your name
+                <input class="form-input" name="guest_name" type="text" placeholder="Jordan Lee" required />
+              </label>
+
+              <div>
+                <label class="form-label" style="margin-bottom:8px">Rating</label>
+                <div class="star-input" role="group" aria-label="Star rating">
+                  <button type="button" data-star="1" aria-label="1 star">☆</button>
+                  <button type="button" data-star="2" aria-label="2 stars">☆</button>
+                  <button type="button" data-star="3" aria-label="3 stars">☆</button>
+                  <button type="button" data-star="4" aria-label="4 stars">☆</button>
+                  <button type="button" data-star="5" aria-label="5 stars">☆</button>
+                </div>
+              </div>
+
+              <label class="form-label">
+                Your experience
+                <textarea
+                  class="form-input"
+                  name="comment"
+                  rows="4"
+                  placeholder="Tell us about your visit..."
+                  required
+                ></textarea>
+              </label>
+
+              <button class="btn btn-primary" type="submit">Submit review</button>
+            </form>
+
+            <div class="status-card" data-feedback-status style="margin-top:16px">
+              Your feedback helps us improve every day.
+            </div>
+          </div>
+
+          <!-- Recent Reviews -->
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Guest reviews</p>
+                <h2>What people say</h2>
+              </div>
+            </div>
+
+            <div class="feedback-stats" data-feedback-stats>
+              <div class="stat-card">
+                <div class="stat-card__value">—</div>
+                <div class="stat-card__label">Avg Rating</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card__value">0</div>
+                <div class="stat-card__label">Reviews</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card__value">—</div>
+                <div class="stat-card__label">Stars</div>
+              </div>
+            </div>
+
+            <div class="review-list" data-feedback-reviews>
+              <div class="order-empty">
+                <div class="order-empty__icon">💬</div>
+                <p>No reviews yet. Be the first!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Footer ─────────────────────────────────────── -->
+      </footer>
+    </div>
+
+    <!-- Redundant Admin Portal removed -->
+
+
+    <!-- ══════════════════════════════════════════════════
+         OVERLAY: Cart Drawer (slides in from right)
+         ══════════════════════════════════════════════════ -->
+    <div class="cart-drawer-backdrop" data-cart-backdrop></div>
+    <aside class="cart-drawer" data-cart-drawer>
+      <div class="cart-drawer__header">
+        <h3>🛒 Your Order</h3>
+        <button class="cart-drawer__close" data-cart-close aria-label="Close cart">×</button>
+      </div>
+
+      <div class="cart-drawer__body">
+        <div class="order-items-list" data-order-items></div>
+        <div data-order-total></div>
+
+        <form class="form-grid" data-order-form style="margin-top:20px">
+          <div class="field-row">
+            <label class="form-label">
+              Name
+              <input class="form-input" name="order_guest_name" type="text" placeholder="Your name" required />
+            </label>
+            <label class="form-label">
+              Phone
+              <input class="form-input" name="order_phone" type="tel" placeholder="+92 300 1234567" pattern="[+]?[0-9\s\-()]{9,20}" title="Please enter a valid phone number (at least 9 digits)" required />
+            </label>
+            <label class="form-label">
+              Email
+              <input class="form-input" name="email" type="email" placeholder="guest@example.com" required />
+            </label>
+          </div>
+          <div class="field-row">
+            <label class="form-label">
+              Order type
+              <select class="form-input" name="order_type">
+                <option value="takeout">Takeout</option>
+                <option value="dine-in">Dine-in</option>
+                <option value="delivery">Delivery</option>
+              </select>
+            </label>
+            <label class="form-label">
+              Notes
+              <input class="form-input" name="order_notes" type="text" placeholder="Special requests..." />
+            </label>
+          </div>
+          <button class="btn btn-primary" type="submit">Place order</button>
+        </form>
+
+        <div class="status-card" data-order-status style="margin-top:16px">
+          Add items from the menu, then place your order here.
+        </div>
+
+        <!-- Order Lookup -->
+        <div class="cart-drawer__lookup">
+          <h4>Track an order</h4>
+          <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:10px">
+            Enter your order ID to check the status.
+          </p>
+          <div class="order-lookup">
+            <input class="form-input" id="order-lookup-input" type="text" placeholder="e.g. A1B2C3D4" autocomplete="off" />
+            <button class="btn btn-ghost btn-sm" type="button" data-order-lookup>Look up</button>
+          </div>
+          <div data-order-result></div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ══════════════════════════════════════════════════
+         OVERLAY: Floating Chat Widget
+         ══════════════════════════════════════════════════ -->
+    <button class="chat-fab" data-chat-fab aria-label="Open chat assistant" title="Chat with our AI">
+      <span class="chat-fab__icon">💬</span>
+    </button>
+
+    <div class="chat-widget" data-chat-widget>
+      <div class="chat-widget__header">
+        <div>
+          <strong>AI Assistant</strong>
+          <span class="chat-widget__status"><span class="pulse-dot"></span> Online</span>
+        </div>
+        <div class="chat-widget__actions">
+          <button class="btn btn-ghost btn-sm" type="button" data-reset-chat>Reset</button>
+          <button class="chat-widget__close" data-chat-widget-close aria-label="Close chat">×</button>
+        </div>
+      </div>
+
+      <div class="quick-prompts" aria-label="Conversation starters">
+        <button type="button" data-chat-prompt="What should I order tonight?">Recommend something</button>
+        <button type="button" data-chat-prompt="Can I make a reservation for four on Friday?">Book a table</button>
+        <button type="button" data-chat-prompt="Do you have vegetarian options?">Dietary question</button>
+        <button type="button" data-chat-prompt="I want something light and fresh">Light & fresh</button>
+        <button type="button" data-chat-prompt="We're celebrating an anniversary tonight!">Special occasion</button>
+        <button type="button" data-chat-prompt="Hola, ¿qué me recomiendas?">Español</button>
+      </div>
+
+      <div class="chat-log" data-chat-log aria-live="polite"></div>
+
+      <form class="chat-form" data-chat-form>
+        <label class="sr-only" for="chat-message">Message</label>
+        <input
+          id="chat-message"
+          name="message"
+          type="text"
+          placeholder="Ask about the menu, reservations, or anything else..."
+          autocomplete="off"
+          required
+        />
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+
+    <!-- ── Admin Login Modal ──────────────────────────────── -->
+    <div class="modal-overlay" data-admin-modal>
+      <div class="modal">
+        <h3>🔑 Admin Login</h3>
+        <form class="form-grid" data-admin-login-form>
+          <label class="form-label">
+            Username
+            <input class="form-input" name="admin_username" type="text" autocomplete="username" required />
+          </label>
+          <label class="form-label">
+            Password
+            <input class="form-input" name="admin_password" type="password" autocomplete="current-password" required />
+          </label>
+          <div class="status-card is-error" data-admin-error style="display:none"></div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" type="submit">Sign in</button>
+            <button class="btn btn-ghost" type="button" data-admin-close>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Custom Admin Confirmation Modal ────────────────── -->
+    <div class="confirm-modal-overlay" data-admin-confirm-modal style="display:none;">
+      <div class="glass-card confirm-modal-card">
+        <h3 data-confirm-title>Confirm Action</h3>
+        <p data-confirm-message>Are you sure you want to proceed?</p>
+        <div class="confirm-modal-actions">
+          <button class="btn btn-ghost" data-confirm-btn="false">Cancel</button>
+          <button class="btn btn-primary" data-confirm-btn="true">Proceed</button>
+        </div>
+      </div>
+    </div>
+
+    <script id="initial-menu" type="application/json">{{ menu_payload|tojson|safe }}</script>
+    <script id="initial-profile" type="application/json">{{ profile_payload|tojson|safe }}</script>
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </body>
+</html>

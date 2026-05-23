@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "restaurant-agent"
+version = "0.2.0"
+description = "A friendly restaurant AI assistant with live menu, reservations, ordering, and feedback."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["Flask>=3.0"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+restaurant_agent = ["templates/*.html", "static/**/*", "static/*"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

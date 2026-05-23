@@ -1,0 +1,85 @@
+{
+  "restaurant": "The Copper Spoon",
+  "currency": "$",
+  "updated_at": "2026-04-08T00:00:00",
+  "sections": [
+    {
+      "name": "Starters",
+      "items": [
+        {
+          "name": "Crispy Calamari",
+          "description": "Lemon aioli, chili salt, and herbs",
+          "price": 14,
+          "tags": ["house favorite", "shareable"],
+          "highlight": true
+        },
+        {
+          "name": "Burrata Toast",
+          "description": "Tomato jam, basil oil, toasted sourdough",
+          "price": 13,
+          "tags": ["vegetarian"]
+        }
+      ]
+    },
+    {
+      "name": "Mains",
+      "items": [
+        {
+          "name": "Wood-Grilled Salmon",
+          "description": "Charred lemon, warm grain salad, dill yogurt",
+          "price": 28,
+          "tags": ["gluten-free"],
+          "highlight": true
+        },
+        {
+          "name": "Braised Short Rib",
+          "description": "Creamy mashed potatoes and rosemary jus",
+          "price": 31,
+          "tags": ["chef special"]
+        },
+        {
+          "name": "Mushroom Tagliatelle",
+          "description": "Parmesan cream, thyme, black pepper",
+          "price": 23,
+          "tags": ["vegetarian"]
+        }
+      ]
+    },
+    {
+      "name": "Desserts",
+      "items": [
+        {
+          "name": "Olive Oil Cake",
+          "description": "Orange syrup, mascarpone, candied citrus",
+          "price": 10,
+          "tags": ["light finish"],
+          "highlight": true
+        },
+        {
+          "name": "Chocolate Pot de Creme",
+          "description": "Sea salt, whipped cream, cocoa nib crunch",
+          "price": 11,
+          "tags": ["rich"]
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "items": [
+        {
+          "name": "House Lemonade",
+          "description": "Fresh lemon, mint, and sparkling water",
+          "price": 6,
+          "tags": ["non-alcoholic"],
+          "highlight": true
+        },
+        {
+          "name": "Smoked Peach Spritz",
+          "description": "White peach, rosemary, prosecco",
+          "price": 13,
+          "tags": ["cocktail"]
+        }
+      ]
+    }
+  ]
+}

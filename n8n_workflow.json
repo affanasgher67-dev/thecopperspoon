@@ -1,0 +1,309 @@
+{
+  "name": "The Copper Spoon - Email Notifications (Only Approved/Cancelled)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "restaurant-agent",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "reservation.created"
+              },
+              "renameOutput": true,
+              "outputKey": "Reservation Received"
+            },
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "reservation.cancelled"
+              },
+              "renameOutput": true,
+              "outputKey": "Reservation Cancelled"
+            },
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "order.created"
+              },
+              "renameOutput": true,
+              "outputKey": "Order Received"
+            },
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "order.cancelled"
+              },
+              "renameOutput": true,
+              "outputKey": "Order Cancelled"
+            },
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "reservation.status_updated"
+              },
+              "renameOutput": true,
+              "outputKey": "Reservation Updated"
+            },
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "order.status_updated"
+              },
+              "renameOutput": true,
+              "outputKey": "Order Updated"
+            }
+          ]
+        },
+        "dataPropertyName": "body.event"
+      },
+      "id": "switch-event",
+      "name": "Route by Event",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "confirmed"
+              },
+              "renameOutput": true,
+              "outputKey": "Confirmed"
+            }
+          ]
+        },
+        "dataPropertyName": "body.data.status"
+      },
+      "id": "switch-res-status",
+      "name": "Is Confirmed?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        700,
+        50
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": {
+                "type": "string",
+                "operation": "equals",
+                "value": "received"
+              },
+              "renameOutput": true,
+              "outputKey": "Accepted"
+            }
+          ]
+        },
+        "dataPropertyName": "body.data.status"
+      },
+      "id": "switch-order-status",
+      "name": "Is Accepted?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        700,
+        550
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.data.email }}",
+        "subject": "✅ Reservation Confirmed - The Copper Spoon",
+        "message": "<div style=\"font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: #f5f5f5; border-radius: 20px; overflow: hidden;\">\n  <div style=\"background: linear-gradient(135deg, #b87333, #d18d4d); padding: 30px; text-align: center;\">\n    <h1 style=\"margin: 0; color: #fff; font-size: 24px;\">🍽️ Reservation Confirmed</h1>\n  </div>\n  <div style=\"padding: 30px;\">\n    <p style=\"color: #b0a8a0;\">Dear <strong style=\"color: #f5f5f5;\">{{ $json.body.data.guest_name }}</strong>,</p>\n    <p style=\"color: #b0a8a0;\">Great news! Your reservation at <strong style=\"color: #b87333;\">The Copper Spoon</strong> has been <strong>APPROVED</strong> and confirmed.</p>\n    <div style=\"background: rgba(184,115,51,0.1); border: 1px solid rgba(184,115,51,0.3); border-radius: 12px; padding: 20px; margin: 20px 0;\">\n      <table style=\"width: 100%; color: #f5f5f5;\">\n        <tr><td style=\"padding: 8px 0; color: #b87333; font-weight: 600;\">Confirmation Code</td><td style=\"padding: 8px 0;\">{{ $json.body.data.confirmation_code }}</td></tr>\n        <tr><td style=\"padding: 8px 0; color: #b87333; font-weight: 600;\">Date</td><td style=\"padding: 8px 0;\">{{ $json.body.data.reservation_date }}</td></tr>\n        <tr><td style=\"padding: 8px 0; color: #b87333; font-weight: 600;\">Time</td><td style=\"padding: 8px 0;\">{{ $json.body.data.reservation_time }}</td></tr>\n        <tr><td style=\"padding: 8px 0; color: #b87333; font-weight: 600;\">Party Size</td><td style=\"padding: 8px 0;\">{{ $json.body.data.party_size }} guests</td></tr>\n      </table>\n    </div>\n    <p style=\"color: #b0a8a0;\">We look forward to seeing you!<br><strong style=\"color: #b87333;\">— The Copper Spoon Team</strong></p>\n  </div>\n</div>",
+        "options": {
+          "appendAttributionToBody": false
+        }
+      },
+      "id": "gmail-res-created",
+      "name": "Email: Reservation Approved",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        950,
+        50
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.data.email }}",
+        "subject": "❌ Reservation Cancelled - The Copper Spoon",
+        "message": "<div style=\"font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: #f5f5f5; border-radius: 20px; overflow: hidden;\">\n  <div style=\"background: linear-gradient(135deg, #e65545, #c44a3a); padding: 30px; text-align: center;\">\n    <h1 style=\"margin: 0; color: #fff; font-size: 24px;\">Reservation Cancelled</h1>\n  </div>\n  <div style=\"padding: 30px;\">\n    <p style=\"color: #b0a8a0;\">Dear <strong style=\"color: #f5f5f5;\">{{ $json.body.data.guest_name }}</strong>,</p>\n    <p style=\"color: #b0a8a0;\">Your reservation at <strong style=\"color: #b87333;\">The Copper Spoon</strong> has been cancelled.</p>\n    <div style=\"background: rgba(230,85,69,0.1); border: 1px solid rgba(230,85,69,0.3); border-radius: 12px; padding: 20px; margin: 20px 0;\">\n      <table style=\"width: 100%; color: #f5f5f5;\">\n        <tr><td style=\"padding: 8px 0; color: #e65545; font-weight: 600;\">Confirmation Code</td><td style=\"padding: 8px 0;\">{{ $json.body.data.confirmation_code }}</td></tr>\n        <tr><td style=\"padding: 8px 0; color: #e65545; font-weight: 600;\">Date</td><td style=\"padding: 8px 0;\">{{ $json.body.data.reservation_date }}</td></tr>\n        <tr><td style=\"padding: 8px 0; color: #e65545; font-weight: 600;\">Time</td><td style=\"padding: 8px 0;\">{{ $json.body.data.reservation_time }}</td></tr>\n      </table>\n    </div>\n    <p style=\"color: #b0a8a0;\">If this was a mistake, you can rebook anytime at our website.</p>\n    <p style=\"color: #b0a8a0;\">We hope to see you soon!<br><strong style=\"color: #b87333;\">— The Copper Spoon Team</strong></p>\n  </div>\n</div>",
+        "options": {
+          "appendAttributionToBody": false
+        }
+      },
+      "id": "gmail-res-cancelled",
+      "name": "Email: Reservation Cancelled",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        950,
+        200
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.data.email }}",
+        "subject": "🛒 Order Accepted - The Copper Spoon",
+        "message": "<div style=\"font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: #f5f5f5; border-radius: 20px; overflow: hidden;\">\n  <div style=\"background: linear-gradient(135deg, #3ab47a, #2d8659); padding: 30px; text-align: center;\">\n    <h1 style=\"margin: 0; color: #fff; font-size: 24px;\">🛒 Order Accepted</h1>\n  </div>\n  <div style=\"padding: 30px;\">\n    <p style=\"color: #b0a8a0;\">Dear <strong style=\"color: #f5f5f5;\">{{ $json.body.data.guest_name }}</strong>,</p>\n    <p style=\"color: #b0a8a0;\">Your order at <strong style=\"color: #b87333;\">The Copper Spoon</strong> has been <strong>ACCEPTED</strong>!</p>\n    <p style=\"color: #b0a8a0;\">We are now preparing your delicious meal. Get ready!</p>\n    <div style=\"background: rgba(58,180,122,0.1); border: 1px solid rgba(58,180,122,0.3); border-radius: 12px; padding: 20px; margin: 20px 0;\">\n      <table style=\"width: 100%; color: #f5f5f5;\">\n        <tr><td style=\"padding: 8px 0; color: #3ab47a; font-weight: 600;\">Order ID</td><td style=\"padding: 8px 0;\">{{ $json.body.data.order_id }}</td></tr>\n        <tr><td style=\"padding: 8px 0; color: #3ab47a; font-weight: 600;\">Total</td><td style=\"padding: 8px 0;\">${{ $json.body.data.total }}</td></tr>\n      </table>\n    </div>\n    <p style=\"color: #b0a8a0;\">Thank you for your order!<br><strong style=\"color: #b87333;\">— The Copper Spoon Team</strong></p>\n  </div>\n</div>",
+        "options": {
+          "appendAttributionToBody": false
+        }
+      },
+      "id": "gmail-order-created",
+      "name": "Email: Order Approved",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        950,
+        450
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.data.email }}",
+        "subject": "❌ Order Cancelled - The Copper Spoon",
+        "message": "<div style=\"font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: #f5f5f5; border-radius: 20px; overflow: hidden;\">\n  <div style=\"background: linear-gradient(135deg, #e65545, #c44a3a); padding: 30px; text-align: center;\">\n    <h1 style=\"margin: 0; color: #fff; font-size: 24px;\">Order Cancelled</h1>\n  </div>\n  <div style=\"padding: 30px;\">\n    <p style=\"color: #b0a8a0;\">Dear <strong style=\"color: #f5f5f5;\">{{ $json.body.data.guest_name }}</strong>,</p>\n    <p style=\"color: #b0a8a0;\">Your order at <strong style=\"color: #b87333;\">The Copper Spoon</strong> has been cancelled.</p>\n    <div style=\"background: rgba(230,85,69,0.1); border: 1px solid rgba(230,85,69,0.3); border-radius: 12px; padding: 20px; margin: 20px 0;\">\n      <table style=\"width: 100%; color: #f5f5f5;\">\n        <tr><td style=\"padding: 8px 0; color: #e65545; font-weight: 600;\">Order ID</td><td style=\"padding: 8px 0;\">{{ $json.body.data.order_id }}</td></tr>\n      </table>\n    </div>\n    <p style=\"color: #b0a8a0;\">If this was a mistake, feel free to place a new order anytime.</p>\n    <p style=\"color: #b0a8a0;\">We hope to serve you again soon!<br><strong style=\"color: #b87333;\">— The Copper Spoon Team</strong></p>\n  </div>\n</div>",
+        "options": {
+          "appendAttributionToBody": false
+        }
+      },
+      "id": "gmail-order-cancelled",
+      "name": "Email: Order Cancelled",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        950,
+        600
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route by Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Event": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Email: Reservation Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Email: Order Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Confirmed?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Accepted?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Confirmed?": {
+      "main": [
+        [
+          {
+            "node": "Email: Reservation Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Accepted?": {
+      "main": [
+        [
+          {
+            "node": "Email: Order Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

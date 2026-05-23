@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-section" id="menu-section">
+  <div class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="panel-kicker">Live menu</p>
+        <h2>Browse &amp; search the menu</h2>
+      </div>
+      <button class="btn btn-ghost btn-sm" type="button" data-refresh-menu>Refresh</button>
+    </div>
+
+    <div class="menu-category-filters" data-category-filters>
+      <button class="category-tab is-active" data-category="all" type="button">All Items</button>
+      {% for section in menu.sections %}
+        <button class="category-tab" data-category="{{ section.name }}" type="button">{{ section.name }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="menu-search-bar">
+      <input id="menu-search" type="text" placeholder="Search dishes, ingredients, or dietary tags..." autocomplete="off" />
+      <button class="btn btn-ghost btn-sm" type="button" data-clear-search>Clear</button>
+    </div>
+
+    <div class="menu-tags" aria-label="Filter by tag">
+      <button class="tag-filter" data-tag-filter="vegetarian" type="button">🥬 Vegetarian</button>
+      <button class="tag-filter" data-tag-filter="gluten-free" type="button">🌾 Gluten-free</button>
+      <button class="tag-filter" data-tag-filter="house favorite" type="button">⭐ House favorites</button>
+      <button class="tag-filter" data-tag-filter="chef special" type="button">👨‍🍳 Chef special</button>
+      <button class="tag-filter" data-tag-filter="shareable" type="button">🤝 Shareable</button>
+    </div>
+
+    <div class="menu-grid" data-menu-grid>
+      {% for section in menu.sections %}
+        <article class="menu-section" id="menu-category-{{ loop.index }}">
+          <div class="menu-section__header">
+            <h3>{{ section.name }}</h3>
+            <span>{{ section.items|length }} items</span>
+          </div>
+          <ul class="menu-list">
+            {% for item in section.items %}
+              <li class="menu-item{% if item.highlight %} is-highlight{% endif %}">
+                {% if item.image_url %}
+                  <div class="menu-item__image-wrap">
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" class="menu-item__img" loading="lazy">
+                  </div>
+                {% endif %}
+                <div class="menu-item__content">
+                  <div class="menu-item__top">
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ item.price_display(menu.currency) }}</span>
+                  </div>
+                  <p>{{ item.description }}</p>
+                  {% if item.out_of_stock %}
+                    <div class="tag-row"><span style="background:var(--error);color:white">Out of Stock</span></div>
+                  {% endif %}
+                  {% if item.tags and not item.out_of_stock %}
+                    <div class="tag-row">
+                      {% for tag in item.tags %}
+                        <span>{{ tag }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <div class="menu-item__bottom-actions">
+                    {% if not is_admin %}
+                    <button class="menu-item__order-btn" type="button" 
+                      data-add-to-order='{"name": "{{ item.name }}", "price": {{ item.price }}}'
+                      {% if item.out_of_stock %}disabled style="opacity:0.4;cursor:not-allowed;"{% endif %}
+                    >
+                      {% if item.out_of_stock %}Sold Out{% else %}+ Add{% endif %}
+                    </button>
+                    {% endif %}
+                    <button class="btn btn-ghost btn-sm" type="button" data-toggle-details>Details</button>
+                  </div>
+                  <div class="menu-item__expand-hint" data-expand-menu-item>+ View details</div>
+                  <div class="menu-item__details">
+                    <p>{{ item.detailed_description }}</p>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

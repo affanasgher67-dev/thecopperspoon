@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{% block title %}{{ profile.name }} | Restaurant Agent{% endblock %}</title>
+    <meta name="description" content="A warm restaurant AI assistant with live menu, reservations, ordering, and feedback. Powered by {{ profile.name }}." />
+    <meta name="theme-color" content="#c45d3a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="{{ url_for('static', filename='icon-512.png') }}" type="image/png" />
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-512.png') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body data-is-admin="{{ 'true' if is_admin else 'false' }}">
+    <div class="page-shell">
+
+      <!-- ── PWA Install Banner ─────────────────────────── -->
+      <div class="install-banner" data-install-banner>
+        <div class="install-banner__text">
+          <strong>Install {{ profile.name }}</strong> for a native app experience with offline support.
+        </div>
+        <button class="btn btn-primary btn-sm" data-install-app>Install</button>
+        <button class="install-banner__dismiss" data-install-dismiss aria-label="Dismiss">×</button>
+      </div>
+
+      <!-- ── Top Navigation ─────────────────────────────── -->
+      <nav class="top-nav" aria-label="Main navigation">
+        <a class="top-nav__brand" href="/">
+          <img class="top-nav__brand-icon" src="{{ url_for('static', filename='icon-512.png') }}" alt="" />
+          {{ profile.name }}
+        </a>
+        
+        <ul class="top-nav__links">
+          <li class="nav-dropdown">
+            <a href="/">Home</a>
+            <ul class="nav-dropdown-content">
+              <li><a href="/#events">Events</a></li>
+              <li><a href="/#wholesale">Wholesale</a></li>
+              <li><a href="/#private-dining">Private Dining</a></li>
+            </ul>
+          </li>
+          <li class="nav-dropdown">
+            <a href="/menu">Menu</a>
+            <ul class="nav-dropdown-content">
+              {% for section in menu.sections %}
+                <li><a href="/menu#{{ section.name }}">{{ section.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="/about" class="{{ 'is-active' if request.path == '/about' }}">About Us</a></li>
+          <li class="{{ 'u-hidden' if is_admin }}"><a href="/feedback" class="{{ 'is-active' if request.path == '/feedback' }}">Feedback</a></li>
+        </ul>
+
+        <div class="top-nav__controls">
+          <a class="btn btn-ghost btn-sm {{ 'u-hidden' if not is_admin }}" href="/admin/dashboard" data-nav-dashboard>Dashboard</a>
+          <a class="btn btn-ghost btn-sm top-nav__hide-mobile {{ 'u-hidden' if is_admin }}" href="/reservations">Book a Table</a>
+          <a class="btn btn-primary btn-sm top-nav__hide-mobile {{ 'u-hidden' if is_admin }}" href="/cart">Order Food</a>
+          <button class="btn btn-ghost btn-sm {{ 'u-hidden' if not is_admin }}" data-admin-logout>Sign out</button>
+          <a class="icon-btn cart-nav-btn {{ 'u-hidden' if is_admin }}" href="/cart" aria-label="Go to cart" title="Your order">
+            🛒
+            <span class="cart-badge" data-cart-badge style="display:none">0</span>
+          </a>
+          <button class="icon-btn" data-theme-toggle aria-label="Toggle dark mode" title="Toggle theme">🌙</button>
+          <button class="hamburger-btn" data-hamburger aria-label="Open menu" title="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- ── Mobile Navigation Drawer ──────────────────── -->
+      <div class="mobile-nav-backdrop" data-mobile-nav-backdrop></div>
+      <nav class="mobile-nav" data-mobile-nav aria-label="Mobile navigation">
+        <div class="mobile-nav__header">
+          <a class="top-nav__brand" href="/">
+            <img class="top-nav__brand-icon" src="{{ url_for('static', filename='icon-512.png') }}" alt="" />
+            {{ profile.name }}
+          </a>
+          <button class="mobile-nav__close" data-mobile-nav-close aria-label="Close menu">×</button>
+        </div>
+        <ul class="mobile-nav__links">
+          <li><a href="/">🏠 Home</a></li>
+          <li><a href="/menu">🍽️ Menu</a></li>
+          {% if not is_admin %}
+          <li><a href="/reservations">📅 Book a Table</a></li>
+          <li><a href="/cart">🛒 Order Food</a></li>
+          <li><a href="/feedback">💬 Feedback</a></li>
+          {% endif %}
+          <li><a href="/about">ℹ️ About Us</a></li>
+          {% if is_admin %}
+          <li><a href="/admin/dashboard">⚙️ Dashboard</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+
+      <main class="page-content">
+        {% block content %}{% endblock %}
+      </main>
+
+      <!-- ── Global Footer ────────────────────────────── -->
+      <footer class="app-footer">
+        <div class="footer-card glass-card">
+          <div class="footer-grid">
+            <div class="footer-brand">
+              <h3 class="footer-title">{{ profile.name }}</h3>
+              <p class="footer-copyright">&copy; 2026 {{ profile.name }}. All rights reserved.</p>
+            </div>
+            
+            <div class="footer-group">
+              <h4>Visit Us</h4>
+              <p>124 Copper Avenue<br>Culinary District, NY</p>
+            </div>
+            
+            <div class="footer-group">
+              <h4>Contact</h4>
+              <p>
+                {{ profile.phone }}<br>
+                hello@copperspoon.com
+              </p>
+            </div>
+            
+            <div class="footer-group">
+              <h4>Hours</h4>
+              <p>{{ profile.hours }}</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         OVERLAY: Floating Chat Widget
+         ══════════════════════════════════════════════════ -->
+    <button class="chat-fab" data-chat-fab aria-label="Open chat assistant" title="Chat with our AI">
+      <span class="chat-fab__icon">💬</span>
+    </button>
+
+    <div class="chat-widget" data-chat-widget>
+      <div class="chat-widget__header">
+        <div>
+          <strong>AI Assistant</strong>
+          <span class="chat-widget__status"><span class="pulse-dot"></span> Online</span>
+        </div>
+        <div class="chat-widget__actions">
+          <button class="btn btn-ghost btn-sm" type="button" data-reset-chat>Reset</button>
+          <button class="chat-widget__close" data-chat-widget-close aria-label="Close chat">×</button>
+        </div>
+      </div>
+
+      <div class="quick-prompts" aria-label="Conversation starters">
+        <button type="button" data-chat-prompt="What should I order tonight?">Recommend something</button>
+        <button type="button" data-chat-prompt="Can I make a reservation for four on Friday?">Book a table</button>
+        <button type="button" data-chat-prompt="Do you have vegetarian options?">Dietary question</button>
+        <button type="button" data-chat-prompt="I want something light and fresh">Light & fresh</button>
+        <button type="button" data-chat-prompt="We're celebrating an anniversary tonight!">Special occasion</button>
+        <button type="button" data-chat-prompt="Hola, ¿qué me recomiendas?">Español</button>
+      </div>
+
+      <div class="chat-log" data-chat-log aria-live="polite"></div>
+
+      <form class="chat-form" data-chat-form>
+        <label class="sr-only" for="chat-message">Message</label>
+        <input
+          id="chat-message"
+          name="message"
+          type="text"
+          placeholder="Ask about the menu, reservations, or anything else..."
+          autocomplete="off"
+          required
+        />
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+
+    <!-- ── Admin Login Modal ──────────────────────────────── -->
+    <div class="modal-overlay" data-admin-modal>
+      <div class="modal">
+        <h3>🔑 Admin Login</h3>
+        <form class="form-grid" data-admin-login-form>
+          <label class="form-label">
+            Username
+            <input class="form-input" name="admin_username" type="text" autocomplete="username" required />
+          </label>
+          <label class="form-label">
+            Password
+            <input class="form-input" name="admin_password" type="password" autocomplete="current-password" required />
+          </label>
+          <div class="status-card is-error" data-admin-error style="display:none"></div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" type="submit">Sign in</button>
+            <button class="btn btn-ghost" type="button" data-admin-close>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Shopping Cart Drawer ────────────────────────── -->
+    <div class="cart-backdrop" data-cart-backdrop></div>
+    <aside class="cart-drawer" data-cart-drawer>
+      <div class="cart-drawer__header">
+        <div>
+          <h3>Your Order</h3>
+          <p class="cart-drawer__subtitle">Review your selection</p>
+        </div>
+        <button class="cart-drawer__close" data-cart-close aria-label="Close cart">×</button>
+      </div>
+
+      <div class="cart-drawer__content">
+        <div class="order-items-list" data-order-items-drawer>
+          <!-- Populated by JS -->
+          <div class="order-empty">
+            <p>Your cart is empty</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-drawer__footer">
+        <div class="order-total" data-order-total-drawer>
+          <span>Total</span>
+          <strong>$0.00</strong>
+        </div>
+        <a href="/cart" class="btn btn-primary" style="width: 100%; border-radius: var(--r-md);">Check Out</a>
+        <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" data-cart-close>Continue Shopping</button>
+      </div>
+    </aside>
+
+    <!-- Global Payloads -->
+    <script id="initial-menu" type="application/json">{{ menu_payload|tojson|safe }}</script>
+    <script id="initial-profile" type="application/json">{{ profile_payload|tojson|safe }}</script>
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </body>
+</html>

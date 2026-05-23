@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-section" id="reserve-section">
+  <div class="reservation-layout">
+    <!-- Booking Form -->
+    <div class="panel" data-public-panel>
+      <div class="panel-heading">
+        <div>
+          <p class="panel-kicker">Reservations</p>
+          <h2>Book in one pass</h2>
+        </div>
+        <span class="panel-tag is-soft">Local save</span>
+      </div>
+
+      <form class="form-grid" data-reservation-form>
+        <div class="field-row">
+          <label class="form-label">
+            Name
+            <input class="form-input" name="guest_name" type="text" placeholder="Jordan Lee" required />
+          </label>
+          <label class="form-label">
+            Phone
+            <input class="form-input" name="phone" type="tel" placeholder="+92 300 1234567" pattern="[+]?[0-9\s\-()]{9,20}" title="Please enter a valid phone number (at least 9 digits)" required />
+          </label>
+          <label class="form-label">
+            Email
+            <input class="form-input" name="email" type="email" placeholder="guest@example.com" required />
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="form-label">
+            Date
+            <input class="form-input" name="reservation_date" type="date" required data-avail-date />
+          </label>
+          <label class="form-label">
+            Time
+            <input class="form-input" name="reservation_time" type="time" required data-avail-time />
+          </label>
+        </div>
+
+        <!-- Live availability indicator -->
+        <div class="availability-bar" data-availability-bar style="display:none">
+          <div class="availability-bar__header">
+            <span class="availability-bar__label">Slot availability</span>
+            <span class="availability-bar__seats" data-avail-text></span>
+          </div>
+          <div class="availability-bar__track">
+            <div class="availability-bar__fill" data-avail-fill></div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="form-label">
+            Party size
+            <input class="form-input" name="party_size" type="number" min="1" max="12" value="2" required />
+          </label>
+          <label class="form-label">
+            &nbsp;
+            <span style="font-size:0.82rem;color:var(--text-tertiary);padding:12px 0">Max 12 guests for online booking</span>
+          </label>
+        </div>
+        <label class="form-label">
+          Notes
+          <textarea
+            class="form-input"
+            name="notes"
+            rows="3"
+            placeholder="Window seat if possible, anniversary celebration, etc."
+          ></textarea>
+        </label>
+        <button class="btn btn-primary" type="submit">Reserve now</button>
+      </form>
+
+      <div class="status-card" data-reservation-status style="margin-top:16px">
+        Reservations are confirmed after validation and stored locally.
+      </div>
+    </div>
+
+    <!-- Lookup & Cancel -->
+    <div class="panel" data-public-panel>
+      <div class="panel-heading">
+        <div>
+          <p class="panel-kicker">Manage</p>
+          <h2>Lookup &amp; cancel</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">
+        Enter your confirmation code to view details or cancel your reservation.
+      </p>
+
+      <div class="order-lookup">
+        <input class="form-input" id="reservation-lookup-input" type="text" placeholder="e.g. A1B2C3D4" autocomplete="off" />
+        <button class="btn btn-ghost btn-sm" type="button" data-reservation-lookup>Look up</button>
+      </div>
+
+      <div data-reservation-result style="margin-top:16px"></div>
+    </div>
+  </div>
+</section>
+
+</section>
+{% endblock %}
