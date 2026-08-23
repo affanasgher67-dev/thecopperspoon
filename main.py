@@ -17,9 +17,14 @@ SRC_RAW = ROOT_RAW / "src"
 # Try /var/task/src directly (Vercel's deployment path)
 SRC_VERCEL = Path("/var/task/src")
 
-for candidate in [SRC, SRC_RAW, SRC_VERCEL]:
-    if candidate.is_dir() and str(candidate) not in sys.path:
-        sys.path.insert(0, str(candidate))
+for candidate in [SRC_VERCEL, SRC_RAW, SRC]:
+    if candidate.is_dir():
+        candidate_str = str(candidate)
+        # Remove all occurrences of the candidate path to ensure it's not present elsewhere
+        while candidate_str in sys.path:
+            sys.path.remove(candidate_str)
+        # Insert at the very beginning
+        sys.path.insert(0, candidate_str)
 
 
 def _build_app() -> Flask:
