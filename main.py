@@ -8,7 +8,7 @@ from flask import Flask
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
 
-if str(SRC) not in sys.path:
+if SRC.is_dir() and str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 
@@ -20,6 +20,7 @@ def _build_app() -> Flask:
     except Exception as exc:
         fallback = Flask(__name__)
         message = str(exc)
+        web_module = SRC / "restaurant_agent" / "web.py"
 
         @fallback.route("/", defaults={"path": ""})
         @fallback.route("/<path:path>")
@@ -28,8 +29,13 @@ def _build_app() -> Flask:
                 "<!doctype html><html><body style='font-family:sans-serif;max-width:720px;margin:2rem auto;'>"
                 "<h1>Server configuration error</h1>"
                 f"<p>{message}</p>"
-                "<p>Add <code>FIREBASE_CREDENTIALS</code> in Vercel under "
-                "Project Settings → Environment Variables, then redeploy.</p>"
+                "<ul>"
+                f"<li>src directory exists: {SRC.is_dir()}</li>"
+                f"<li>web.py exists: {web_module.is_file()}</li>"
+                f"<li>PYTHONPATH includes src: {'src' in str(SRC) or str(SRC) in sys.path}</li>"
+                "</ul>"
+                "<p>Set <code>FIREBASE_CREDENTIALS</code>, <code>GROQ_API_KEY</code>, "
+                "and <code>VERCEL_SUPPORT_LARGE_FUNCTIONS=1</code> in Vercel env vars.</p>"
                 "</body></html>"
             ), 503
 
@@ -37,6 +43,8 @@ def _build_app() -> Flask:
 
 
 app = _build_app()
+application = app
+handler = app
 
 
 if __name__ == "__main__":
