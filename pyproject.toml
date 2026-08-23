@@ -17,6 +17,9 @@ dependencies = [
     "langchain-core",
 ]
 
+[tool.vercel]
+entrypoint = "main:app"
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
