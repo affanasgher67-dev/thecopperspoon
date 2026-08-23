@@ -22,6 +22,11 @@ def _get_db():
         if os.path.exists(key_path):
             cred = credentials.Certificate(key_path)
             firebase_admin.initialize_app(cred)
+        elif os.getenv("FIREBASE_CREDENTIALS"):
+            import json
+            cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
         else:
             firebase_admin.initialize_app()
             

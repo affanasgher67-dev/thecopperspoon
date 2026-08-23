@@ -41,6 +41,10 @@ def create_app(
         if KEY_PATH.exists():
             cred = credentials.Certificate(str(KEY_PATH))
             firebase_admin.initialize_app(cred)
+        elif os.getenv("FIREBASE_CREDENTIALS"):
+            cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
         else:
             # Fallback for local dev if key is missing, though we expect it now
             firebase_admin.initialize_app()
