@@ -13,7 +13,6 @@ from flask.typing import ResponseReturnValue
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-from .agent import build_restaurant_agent
 from .auth import admin_required, verify_admin
 from .config import load_restaurant_profile
 from .feedback import FeedbackError, FeedbackStore
@@ -238,6 +237,7 @@ def create_app(
             from datetime import datetime
             now_str = datetime.now().strftime("%A, %B %d, %Y at %H:%M")
             
+            from .agent import build_restaurant_agent
             agent = build_restaurant_agent(
                 profile=profile,
                 client=chat_client,
