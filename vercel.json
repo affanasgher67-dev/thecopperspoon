@@ -1,12 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "builds": [
+    {
+      "src": "src/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/app.py"
+    }
+  ],
   "env": {
     "PYTHONPATH": "src"
-  },
-  "functions": {
-    "app.py": {
-      "maxDuration": 60,
-      "includeFiles": "{src/**,pyproject.toml,uv.lock,requirements.txt,data/**}"
-    }
   }
 }
