@@ -6,7 +6,7 @@
   "functions": {
     "app.py": {
       "maxDuration": 60,
-      "includeFiles": "src/**"
+      "includeFiles": "{src/**,pyproject.toml,uv.lock,requirements.txt,data/**}"
     }
   }
 }

@@ -11,9 +11,6 @@ from typing import Any
 from flask import Flask, jsonify, render_template, request, send_from_directory, session, redirect
 from flask.typing import ResponseReturnValue
 
-import firebase_admin
-from firebase_admin import credentials, firestore
-
 from .auth import admin_required, verify_admin
 from .config import load_restaurant_profile
 from .feedback import FeedbackError, FeedbackStore
@@ -31,16 +28,16 @@ REPO_ROOT = PACKAGE_ROOT.parents[1]
 KEY_PATH = REPO_ROOT / "firebase-key.json"
 
 
-def _parse_firebase_credentials() -> credentials.Certificate | None:
+def _parse_firebase_credentials(credentials_mod) -> Any | None:
     if KEY_PATH.exists():
-        return credentials.Certificate(str(KEY_PATH))
+        return credentials_mod.Certificate(str(KEY_PATH))
 
     raw = os.getenv("FIREBASE_CREDENTIALS", "").strip()
     if not raw:
         return None
 
     try:
-        return credentials.Certificate(json.loads(raw))
+        return credentials_mod.Certificate(json.loads(raw))
     except json.JSONDecodeError as exc:
         raise RuntimeError(
             "FIREBASE_CREDENTIALS is set but is not valid JSON. "
@@ -48,19 +45,28 @@ def _parse_firebase_credentials() -> credentials.Certificate | None:
         ) from exc
 
 
+def _runtime_data_dir() -> Path:
+    data_dir = Path(os.getenv("RESTAURANT_DATA_DIR", "/tmp/restaurant-agent-data"))
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir
+
+
 def _get_firestore_db(*, skip: bool = False):
     if skip:
+        return None
+
+    try:
+        import firebase_admin
+        from firebase_admin import credentials, firestore
+    except ImportError:
         return None
 
     if firebase_admin._apps:
         return firestore.client()
 
-    cred = _parse_firebase_credentials()
+    cred = _parse_firebase_credentials(credentials)
     if cred is None:
-        raise RuntimeError(
-            "Firebase is not configured. Set FIREBASE_CREDENTIALS in Vercel "
-            "(Project Settings → Environment Variables) to your service account JSON."
-        )
+        return None
 
     firebase_admin.initialize_app(cred)
     return firestore.client()
@@ -94,6 +100,8 @@ def create_app(
     reservation_backend: Path | Any = db
     if local_data_dir is not None:
         reservation_backend = local_data_dir / "reservations.json"
+    elif db is None:
+        reservation_backend = _runtime_data_dir() / "reservations.json"
 
     reservation_store = ReservationStore(
         reservation_backend,
