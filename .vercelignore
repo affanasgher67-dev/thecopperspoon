@@ -1,0 +1,13 @@
+functions/
+scratch/
+tests/
+.github/
+screenshots/
+*.md
+n8n_workflow.json
+sync_firestore.py
+Start-Server.bat
+web.py
+firebase-key.json
+.env
+.env.*

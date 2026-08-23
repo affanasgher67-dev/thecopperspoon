@@ -6,6 +6,7 @@ import os
 import time
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
 from flask import Flask, jsonify, render_template, request, send_from_directory, session, redirect
 from flask.typing import ResponseReturnValue
@@ -30,25 +31,48 @@ REPO_ROOT = PACKAGE_ROOT.parents[1]
 KEY_PATH = REPO_ROOT / "firebase-key.json"
 
 
+def _parse_firebase_credentials() -> credentials.Certificate | None:
+    if KEY_PATH.exists():
+        return credentials.Certificate(str(KEY_PATH))
+
+    raw = os.getenv("FIREBASE_CREDENTIALS", "").strip()
+    if not raw:
+        return None
+
+    try:
+        return credentials.Certificate(json.loads(raw))
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(
+            "FIREBASE_CREDENTIALS is set but is not valid JSON. "
+            "Paste the full Firebase service account JSON as a single-line string."
+        ) from exc
+
+
+def _get_firestore_db(*, skip: bool = False):
+    if skip:
+        return None
+
+    if firebase_admin._apps:
+        return firestore.client()
+
+    cred = _parse_firebase_credentials()
+    if cred is None:
+        raise RuntimeError(
+            "Firebase is not configured. Set FIREBASE_CREDENTIALS in Vercel "
+            "(Project Settings → Environment Variables) to your service account JSON."
+        )
+
+    firebase_admin.initialize_app(cred)
+    return firestore.client()
+
+
 def create_app(
     *,
     data_dir: Path | str | None = None,
     chat_client=None,
 ) -> Flask:
-    # Initialize Firebase
-    if not firebase_admin._apps:
-        if KEY_PATH.exists():
-            cred = credentials.Certificate(str(KEY_PATH))
-            firebase_admin.initialize_app(cred)
-        elif os.getenv("FIREBASE_CREDENTIALS"):
-            cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
-            cred = credentials.Certificate(cred_dict)
-            firebase_admin.initialize_app(cred)
-        else:
-            # Fallback for local dev if key is missing, though we expect it now
-            firebase_admin.initialize_app()
-    
-    db = firestore.client()
+    local_data_dir = Path(data_dir) if data_dir else None
+    db = _get_firestore_db(skip=local_data_dir is not None)
 
     profile = load_restaurant_profile()
     template_folder = PACKAGE_ROOT / "templates"
@@ -57,7 +81,6 @@ def create_app(
     app = Flask(__name__, template_folder=str(template_folder), static_folder=str(static_folder))
     app.secret_key = os.getenv("FLASK_SECRET_KEY", "restaurant-agent-dev-key")
     app.config["JSON_SORT_KEYS"] = False
-    local_data_dir = Path(data_dir) if data_dir else None
     
     @app.context_processor
     def inject_admin_status():
@@ -68,7 +91,14 @@ def create_app(
             return load_menu_catalog(local_data_dir)
         return load_menu_catalog(db)
 
-    reservation_store = ReservationStore(db, max_seats_per_slot=profile.max_seats_per_slot)
+    reservation_backend: Path | Any = db
+    if local_data_dir is not None:
+        reservation_backend = local_data_dir / "reservations.json"
+
+    reservation_store = ReservationStore(
+        reservation_backend,
+        max_seats_per_slot=profile.max_seats_per_slot,
+    )
     feedback_store = FeedbackStore(db)
     order_store = OrderStore(db)
 
